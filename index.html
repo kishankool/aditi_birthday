@@ -523,24 +523,8 @@
           (e.metaKey && e.key.toUpperCase() === 'U')
         ) { e.preventDefault(); return false; }
       });
-      // DevTools open detection — only triggers if window is already loaded and diff is large
-      (function devToolsWatch() {
-        // Wait for window to fully load before starting detection
-        // Use a high threshold to avoid false positives on small screens / OS chrome
-        let triggered = false;
-        setTimeout(() => {
-          setInterval(() => {
-            if (triggered) return;
-            const widthDiff = window.outerWidth - window.innerWidth;
-            const heightDiff = window.outerHeight - window.innerHeight;
-            // 300px threshold avoids false positives from browser UI / taskbars
-            if (widthDiff > 300 || heightDiff > 300) {
-              triggered = true;
-              document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;font-size:14px;color:#999;">nothing to see here ♡</div>';
-            }
-          }, 1500);
-        }, 3000); // Wait 3s after page load before activating
-      })();
+      // Note: window size-based DevTools detection removed — too unreliable on mobile
+      // (mobile keyboards resize the viewport and cause false positives)
 
       /* ══ MUSIC ══ */
       const audio = document.getElementById('bgMusic');
