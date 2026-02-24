@@ -40,6 +40,98 @@
         cursor: none;
       }
 
+      /* ── SPLASH SCREEN ── */
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          opacity 0.9s ease,
+          visibility 0.9s ease;
+      }
+      #splash.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      #splash-inner {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        opacity: 0;
+        animation: fadeUp 1s ease 0.4s forwards;
+      }
+
+      .splash-tag {
+        font-family: var(--mono);
+        font-size: 0.58rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .splash-name {
+        font-family: var(--serif);
+        font-size: clamp(3.5rem, 10vw, 8rem);
+        font-weight: 300;
+        line-height: 0.9;
+        color: var(--bg);
+        letter-spacing: -0.02em;
+      }
+      .splash-name em {
+        font-style: italic;
+        color: var(--accent);
+      }
+
+      #enterBtn {
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.9rem 2.2rem;
+        border: 1px solid rgba(201, 169, 110, 0.5);
+        border-radius: 100px;
+        background: transparent;
+        color: var(--bg);
+        font-family: var(--mono);
+        font-size: 0.6rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        cursor: none;
+        transition:
+          background 0.3s,
+          border-color 0.3s,
+          color 0.3s;
+      }
+      #enterBtn svg {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.3s;
+      }
+      #enterBtn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--ink);
+      }
+      #enterBtn:hover svg {
+        transform: translateX(4px);
+      }
+
+      .splash-hint {
+        font-family: var(--mono);
+        font-size: 0.5rem;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+        opacity: 0.6;
+      }
+
       /* ── CONFETTI CANVAS ── */
       #confetti-canvas {
         position: fixed;
@@ -801,6 +893,26 @@
     </style>
   </head>
   <body>
+    <!-- ── SPLASH SCREEN ── -->
+    <div id="splash">
+      <div id="splash-inner">
+        <p class="splash-tag">a gift, just for you</p>
+        <h1 class="splash-name">Aditi<br /><em>Tiwari</em></h1>
+        <button id="enterBtn">
+          <span>Open</span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.2"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
+        <p class="splash-hint">with sound ♪</p>
+      </div>
+    </div>
+
     <canvas id="confetti-canvas"></canvas>
 
     <!-- ♫ Music Player — replace your_song.mp3 with your actual file -->
@@ -819,7 +931,7 @@
         </svg>
       </button>
       <div class="music-info">
-        <span class="music-title" id="musicTitle">your_song.mp3</span>
+        <span class="music-title" id="musicTitle">Aditi's Tune</span>
         <div class="music-bars" id="musicBars">
           <div class="music-bar"></div>
           <div class="music-bar"></div>
@@ -830,7 +942,7 @@
       </div>
       <audio id="bgMusic" loop>
         <!-- 🎵 Change the src below to your music file path, e.g. "music/your_song.mp3" -->
-        <source src="your_song.mp3" type="audio/mpeg" />
+        <source src="audio.mp3" type="audio/mpeg" />
       </audio>
     </div>
 
@@ -1216,6 +1328,37 @@
     </section>
 
     <script>
+      /* ══ MUSIC ══ */
+      const audio = document.getElementById("bgMusic");
+      const musicBtn = document.getElementById("musicBtn");
+      const playIcon = document.getElementById("playIcon");
+      const pauseIcon = document.getElementById("pauseIcon");
+      const musicBars = document.getElementById("musicBars");
+      const musicPlayer = document.getElementById("musicPlayer");
+
+      setTimeout(() => musicPlayer.classList.add("visible"), 1800);
+
+      let playing = false;
+
+      /* ══ SPLASH ENTER ══ */
+      const splash = document.getElementById("splash");
+      const enterBtn = document.getElementById("enterBtn");
+
+      enterBtn.addEventListener("click", () => {
+        // Start music (user gesture unlocks autoplay)
+        audio.play().catch(() => {});
+        playIcon.style.display = "none";
+        pauseIcon.style.display = "";
+        musicBars.classList.add("playing");
+        playing = true;
+
+        // Dismiss splash
+        splash.classList.add("hidden");
+
+        // Kick off confetti
+        runConfetti();
+      });
+
       /* ══ CONFETTI ══ */
       const canvas = document.getElementById("confetti-canvas");
       const ctx = canvas.getContext("2d");
@@ -1293,19 +1436,7 @@
         frame++;
         requestAnimationFrame(runConfetti);
       }
-      runConfetti();
 
-      /* ══ MUSIC ══ */
-      const audio = document.getElementById("bgMusic");
-      const musicBtn = document.getElementById("musicBtn");
-      const playIcon = document.getElementById("playIcon");
-      const pauseIcon = document.getElementById("pauseIcon");
-      const musicBars = document.getElementById("musicBars");
-      const musicPlayer = document.getElementById("musicPlayer");
-
-      setTimeout(() => musicPlayer.classList.add("visible"), 1800);
-
-      let playing = false;
       musicBtn.addEventListener("click", () => {
         if (playing) {
           audio.pause();
