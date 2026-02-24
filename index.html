@@ -17,6 +17,95 @@
       html { scroll-behavior: smooth; }
       body { background: var(--bg); color: var(--ink); font-family: var(--serif); font-weight: 300; cursor: none; }
 
+      /* ── BIRTHDAY TIMER LOCK ── */
+      #timerLock {
+        position: fixed; inset: 0; z-index: 20000;
+        background: var(--ink);
+        display: flex; align-items: center; justify-content: center;
+        flex-direction: column;
+        opacity: 1;
+        transition: opacity 1.2s ease, visibility 1.2s ease;
+      }
+      #timerLock.unlocking { opacity: 0; visibility: hidden; pointer-events: none; }
+      #timerLock.hidden { display: none; }
+
+      .timer-inner {
+        text-align: center;
+        display: flex; flex-direction: column; align-items: center;
+        gap: 2.5rem;
+        animation: fadeUp 1s ease 0.3s both;
+      }
+      .timer-tag {
+        font-family: var(--mono); font-size: 0.55rem;
+        letter-spacing: 0.35em; text-transform: uppercase;
+        color: var(--accent);
+      }
+      .timer-headline {
+        font-family: var(--serif); font-size: clamp(2rem, 6vw, 4rem);
+        font-weight: 300; color: var(--bg);
+        line-height: 1.2;
+      }
+      .timer-headline em { color: var(--accent); font-style: italic; }
+      .timer-date-note {
+        font-family: var(--mono); font-size: 0.6rem;
+        letter-spacing: 0.2em; color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      /* Countdown grid */
+      .countdown {
+        display: flex; gap: 2rem; align-items: flex-start;
+      }
+      .cd-unit {
+        display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      }
+      .cd-number {
+        font-family: var(--serif); font-size: clamp(3rem, 10vw, 6rem);
+        font-weight: 300; color: var(--bg); line-height: 1;
+        letter-spacing: -0.03em;
+        min-width: 2ch; text-align: center;
+        position: relative;
+      }
+      .cd-number::after {
+        content: '';
+        position: absolute; bottom: -4px; left: 0; right: 0;
+        height: 1px; background: rgba(201,169,110,0.3);
+      }
+      .cd-label {
+        font-family: var(--mono); font-size: 0.45rem;
+        letter-spacing: 0.3em; text-transform: uppercase;
+        color: var(--muted);
+      }
+      .cd-sep {
+        font-family: var(--serif); font-size: clamp(2rem, 7vw, 4rem);
+        color: var(--accent); opacity: 0.4; line-height: 1;
+        margin-top: 0.15rem;
+      }
+
+      /* "It's Time" flash when unlocking */
+      .timer-ready {
+        font-family: var(--serif); font-size: clamp(1.5rem, 5vw, 3rem);
+        font-style: italic; color: var(--accent);
+        opacity: 0; transform: scale(0.9);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+        display: none;
+      }
+      .timer-ready.show { display: block; opacity: 1; transform: scale(1); }
+
+      /* Particles behind timer */
+      #timerParticles {
+        position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+      }
+      .tp {
+        position: absolute; border-radius: 50%;
+        background: var(--accent); opacity: 0.04;
+        animation: floatUp linear infinite;
+      }
+      @keyframes floatUp {
+        from { transform: translateY(100vh) scale(0); opacity: 0.06; }
+        to { transform: translateY(-20vh) scale(1); opacity: 0; }
+      }
+
       /* ── SPLASH ── */
       #splash { position: fixed; inset: 0; z-index: 10000; background: var(--ink); display: flex; align-items: center; justify-content: center; transition: opacity 0.9s ease, visibility 0.9s ease; }
       #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -66,6 +155,25 @@
       /* ── PAGE ── */
       .page { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
 
+      /* ── SECTION TRANSITIONS ── */
+      .section-transition {
+        position: relative;
+        overflow: hidden;
+      }
+      .section-transition::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%; right: -100%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        animation: shimmer 3s ease infinite;
+        opacity: 0.6;
+      }
+      @keyframes shimmer {
+        from { transform: translateX(-50%); }
+        to { transform: translateX(50%); }
+      }
+
       /* ── HERO ── */
       #home { flex-direction: column; text-align: center; }
       .hero-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent); margin-bottom: 2rem; opacity: 0; animation: fadeUp 1s ease 0.3s forwards; }
@@ -107,74 +215,25 @@
       .gallery-item:hover .gallery-overlay { opacity: 1; }
       .gallery-caption { position: absolute; bottom: 1.2rem; left: 1.2rem; font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em; color: white; opacity: 0; transition: opacity 0.4s 0.1s; }
       .gallery-item:hover .gallery-caption { opacity: 1; }
-      .img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.6rem; font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em; color: var(--muted); background: linear-gradient(135deg, #e8e4de 0%, #d5cfc7 100%); }
-      .img-placeholder svg { opacity: 0.35; }
 
-      /* ── VIDEO LOCK GATE ── */
-      .video-gate {
-        display: none;
-        width: 100%;
-        max-width: 480px;
-        margin: 0 auto;
-        flex-direction: column;
-        align-items: center;
-        gap: 2rem;
-        text-align: center;
-        padding: 3rem 2rem;
-      }
+      /* VIDEO LOCK GATE */
+      .video-gate { display: none; width: 100%; max-width: 480px; margin: 0 auto; flex-direction: column; align-items: center; gap: 2rem; text-align: center; padding: 3rem 2rem; }
       .video-gate.show { display: flex; }
       .gate-lock { color: var(--accent); margin-bottom: 0.5rem; animation: heartbeat 2s ease infinite; }
-      .gate-question {
-        font-size: 1.3rem;
-        font-style: italic;
-        line-height: 1.6;
-        color: var(--ink);
-      }
+      .gate-question { font-size: 1.3rem; font-style: italic; line-height: 1.6; color: var(--ink); }
       .gate-hint { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
       .gate-input-wrap { position: relative; width: 100%; max-width: 280px; }
-      .gate-input {
-        width: 100%;
-        padding: 0.85rem 3rem 0.85rem 1.2rem;
-        border: 1px solid var(--line);
-        border-radius: 100px;
-        background: transparent;
-        font-family: var(--mono);
-        font-size: 0.7rem;
-        letter-spacing: 0.15em;
-        color: var(--ink);
-        text-align: center;
-        outline: none;
-        transition: border-color 0.3s;
-        cursor: none;
-      }
+      .gate-input { width: 100%; padding: 0.85rem 3rem 0.85rem 1.2rem; border: 1px solid var(--line); border-radius: 100px; background: transparent; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.15em; color: var(--ink); text-align: center; outline: none; transition: border-color 0.3s; cursor: none; }
       .gate-input:focus { border-color: var(--accent); }
       .gate-input.wrong { border-color: #c04040; animation: shake 0.4s ease; }
       .gate-input.correct { border-color: #5a8a5a; }
-      .gate-submit {
-        padding: 0.85rem 2.5rem;
-        border: 1px solid var(--accent);
-        border-radius: 100px;
-        background: transparent;
-        font-family: var(--mono);
-        font-size: 0.6rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--ink);
-        cursor: none;
-        transition: background 0.3s, color 0.3s;
-      }
+      .gate-submit { padding: 0.85rem 2.5rem; border: 1px solid var(--accent); border-radius: 100px; background: transparent; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); cursor: none; transition: background 0.3s, color 0.3s; }
       .gate-submit:hover { background: var(--accent); color: var(--bg); }
       .gate-error { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.1em; color: #c04040; opacity: 0; transition: opacity 0.3s; }
       .gate-error.show { opacity: 1; }
       .gate-attempts { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.1em; color: var(--muted); }
 
-      @keyframes shake {
-        0%,100%{transform:translateX(0)}
-        20%{transform:translateX(-8px)}
-        40%{transform:translateX(8px)}
-        60%{transform:translateX(-5px)}
-        80%{transform:translateX(5px)}
-      }
+      @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
 
       /* Video grid */
       .video-grid { display: none; grid-template-columns: 1fr; gap: 2rem; width: 100%; max-width: 780px; margin: 0 auto; }
@@ -182,31 +241,12 @@
       .video-item { position: relative; background: #1a1714; border-radius: 2px; opacity: 0; transform: translateY(30px); transition: all 0.7s ease; overflow: hidden; }
       .video-item.visible { opacity: 1; transform: none; }
       .video-item video { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .video-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.75rem; background: linear-gradient(135deg, #252220 0%, #1a1714 100%); }
-      .video-placeholder svg { color: var(--accent); opacity: 0.5; }
-      .video-placeholder span { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
-      .video-play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(26,23,20,0.25); opacity: 0; transition: opacity 0.3s; }
-      .video-item:hover .video-play-btn { opacity: 1; }
-      .video-play-circle { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; color: var(--accent); transform: scale(0.9); transition: transform 0.3s; }
-      .video-item:hover .video-play-circle { transform: scale(1); }
+      .video-unlocked-badge { display: none; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em; color: #5a8a5a; text-transform: uppercase; margin-bottom: 1.5rem; }
+      .video-unlocked-badge.show { display: flex; }
       .single-video { max-width: 780px; width: 100%; }
       .video-iframe-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #1a1714; }
       .video-iframe-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
       .video-label { position: absolute; bottom: 1rem; left: 1rem; font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em; color: rgba(247,244,239,0.6); text-transform: uppercase; }
-
-      /* Unlocked badge */
-      .video-unlocked-badge {
-        display: none;
-        align-items: center;
-        gap: 0.5rem;
-        font-family: var(--mono);
-        font-size: 0.55rem;
-        letter-spacing: 0.15em;
-        color: #5a8a5a;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
-      }
-      .video-unlocked-badge.show { display: flex; }
 
       /* ── TIMELINE ── */
       #timeline { flex-direction: column; padding: 7rem 3rem; background: var(--ink); color: var(--bg); align-items: center; }
@@ -233,7 +273,56 @@
       .closing-wish em { font-style: italic; color: var(--accent); }
       .closing-from { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
       .heart { display: inline-block; color: var(--accent); animation: heartbeat 1.5s ease infinite; }
-      .divider { width: 100%; height: 1px; background: var(--line); }
+      .divider { width: 100%; height: 1px; background: var(--line); position: relative; overflow: hidden; }
+      .divider::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 40%; height: 100%;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        animation: scanline 4s ease-in-out infinite;
+      }
+      @keyframes scanline {
+        from { left: -40%; }
+        to { left: 140%; }
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        width: 100%;
+        padding: 2.5rem 3rem;
+        background: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0.75rem;
+        border-top: 1px solid rgba(201,169,110,0.15);
+      }
+      .footer-heart {
+        font-family: var(--serif); font-size: 1.4rem;
+        color: var(--accent);
+        animation: heartbeat 1.8s ease infinite;
+        display: inline-block;
+      }
+      .footer-text {
+        font-family: var(--mono); font-size: 0.55rem;
+        letter-spacing: 0.25em; text-transform: uppercase;
+        color: var(--muted);
+      }
+      .footer-text em {
+        font-style: normal;
+        color: var(--accent);
+        font-family: var(--serif);
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        text-transform: none;
+      }
+      .footer-sub {
+        font-family: var(--mono); font-size: 0.45rem;
+        letter-spacing: 0.2em; text-transform: uppercase;
+        color: rgba(158,149,144,0.4);
+      }
 
       @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
       @keyframes lineGrow { 0%,100%{transform:scaleY(0);transform-origin:top;opacity:1} 50%{transform:scaleY(1);transform-origin:top;opacity:0.6} }
@@ -245,17 +334,51 @@
         .gallery-grid { grid-template-columns: repeat(2,1fr); }
         .gallery-item:nth-child(2),.gallery-item:nth-child(5) { margin-top: 0; }
         .gallery-item:nth-child(3) { display: none; }
-        .video-grid { grid-template-columns: 1fr; }
+        .countdown { gap: 1rem; }
+        .cd-number { font-size: clamp(2.5rem, 8vw, 4rem); }
         .timeline-item,.timeline-item:nth-child(odd) { flex-direction: column; text-align: left; }
         .timeline-track::before { left: 8px; }
         .hero-date-badge { display: none; }
         #gallery,#timeline { padding: 5rem 1.5rem; }
         .music-player { bottom: 1rem; right: 1rem; padding: 0.6rem 1rem; }
         .music-title { max-width: 100px; }
+        footer { padding: 2rem 1.5rem; }
       }
     </style>
   </head>
   <body>
+
+    <!-- ══ BIRTHDAY TIMER LOCK ══ -->
+    <div id="timerLock">
+      <div id="timerParticles"></div>
+      <div class="timer-inner">
+        <p class="timer-tag">something beautiful is waiting</p>
+        <h1 class="timer-headline">Aditi's<br /><em>Birthday</em> Site</h1>
+        <p class="timer-date-note">Opens on 11 March 2026 · 12:00 AM</p>
+        <div class="countdown" id="countdown">
+          <div class="cd-unit">
+            <span class="cd-number" id="cdDays">00</span>
+            <span class="cd-label">Days</span>
+          </div>
+          <span class="cd-sep">:</span>
+          <div class="cd-unit">
+            <span class="cd-number" id="cdHours">00</span>
+            <span class="cd-label">Hours</span>
+          </div>
+          <span class="cd-sep">:</span>
+          <div class="cd-unit">
+            <span class="cd-number" id="cdMins">00</span>
+            <span class="cd-label">Mins</span>
+          </div>
+          <span class="cd-sep">:</span>
+          <div class="cd-unit">
+            <span class="cd-number" id="cdSecs">00</span>
+            <span class="cd-label">Secs</span>
+          </div>
+        </div>
+        <p class="timer-ready" id="timerReady">It's finally time… ♡</p>
+      </div>
+    </div>
 
     <!-- SPLASH -->
     <div id="splash">
@@ -286,7 +409,6 @@
           <div class="music-bar"></div>
         </div>
       </div>
-      <!-- 🎵 Replace src with your audio file -->
       <audio id="bgMusic" loop><source src="audio.mp3" type="audio/mpeg"/></audio>
     </div>
 
@@ -304,8 +426,8 @@
     </nav>
 
     <!-- HERO -->
-    <section class="page" id="home">
-      <div class="hero-date-badge">21.04.2025 — ∞</div>
+    <section class="page section-transition" id="home">
+      <div class="hero-date-badge">11.03.2026 — ∞</div>
       <p class="hero-tag">Dear, Aditi</p>
       <h1 class="hero-name">Happy<br /><em>Birthday</em></h1>
       <p class="hero-sub">this little corner of the internet is entirely yours.</p>
@@ -315,7 +437,7 @@
     <div class="divider"></div>
 
     <!-- LETTER -->
-    <section class="page" id="letter">
+    <section class="page section-transition" id="letter">
       <div class="letter-inner" data-reveal>
         <p class="letter-label">A letter for you</p>
         <div class="letter-text">
@@ -332,7 +454,7 @@
     <div class="divider"></div>
 
     <!-- GALLERY -->
-    <section class="page" id="gallery">
+    <section class="page section-transition" id="gallery">
       <div style="width:100%;max-width:1100px;margin:0 auto">
         <p class="section-label">Memories</p>
         <h2 class="section-title">A few of my<br /><em>favourite frames</em></h2>
@@ -345,38 +467,38 @@
         <!-- PHOTOS -->
         <div class="gallery-grid active" id="photoGrid">
           <div class="gallery-item" data-reveal>
-            <img src="hauzkhas.jpg" alt="Hauz Khas" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;filter:grayscale(20%)">
+            <img src="hauzkhas.jpg" alt="Hauz Khas">
             <div class="gallery-overlay"></div>
             <span class="gallery-caption">Hauz Khas</span>
           </div>
           <div class="gallery-item" data-reveal style="transition-delay:0.15s">
-            <img src="karolbagh.jpg" alt="Karolbagh" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;filter:grayscale(20%)">
+            <img src="karolbagh.jpg" alt="Karolbagh">
             <div class="gallery-overlay"></div>
             <span class="gallery-caption">Karolbagh</span>
           </div>
           <div class="gallery-item" data-reveal style="transition-delay:0.3s">
-            <img src="ayurveda.jpg" alt="Blush" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;filter:grayscale(20%)">
+            <img src="ayurveda.jpg" alt="Blush">
             <div class="gallery-overlay"></div>
             <span class="gallery-caption">Blush</span>
           </div>
           <div class="gallery-item" data-reveal style="transition-delay:0.1s">
-            <img src="qutub.jpg" alt="Qutub Minar" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;filter:grayscale(20%)">
+            <img src="qutub.jpg" alt="Qutub Minar">
             <div class="gallery-overlay"></div>
             <span class="gallery-caption">Qutub Minar</span>
           </div>
           <div class="gallery-item" data-reveal style="transition-delay:0.25s">
-            <img src="vegas.jpg" alt="Vegas" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;filter:grayscale(20%)">
+            <img src="vegas.jpg" alt="Vegas">
             <div class="gallery-overlay"></div>
             <span class="gallery-caption">Vegas</span>
           </div>
           <div class="gallery-item" data-reveal style="transition-delay:0.4s">
-            <img src="ramphal.jpg" alt="Memory" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;filter:grayscale(20%)">
+            <img src="ramphal.jpg" alt="Memory">
             <div class="gallery-overlay"></div>
             <span class="gallery-caption">MEMORY 06</span>
           </div>
         </div>
 
-        <!-- VIDEO GATE (shown when Videos tab is clicked and not yet unlocked) -->
+        <!-- VIDEO GATE -->
         <div class="video-gate" id="videoGate">
           <div class="gate-lock">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -396,13 +518,13 @@
           <p class="gate-attempts" id="gateAttempts"></p>
         </div>
 
-        <!-- VIDEOS (hidden until unlocked) -->
+        <!-- VIDEOS -->
         <div id="videoSection" style="display:none; width:100%">
           <div class="video-unlocked-badge" id="unlockedBadge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             Unlocked — just for you
           </div>
-                    <div class="video-grid" id="videoGrid">
+          <div class="video-grid" id="videoGrid">
             <div class="video-item single-video visible" data-reveal>
               <div class="video-iframe-wrap">
                 <iframe
@@ -418,14 +540,13 @@
             </div>
           </div>
         </div>
-
       </div>
     </section>
 
     <div class="divider"></div>
 
     <!-- TIMELINE -->
-    <section class="page" id="timeline">
+    <section class="page section-transition" id="timeline">
       <p class="section-label">Our Story</p>
       <h2 class="section-title">The moments that<br /><em>matter most</em></h2>
       <div class="timeline-track">
@@ -479,23 +600,105 @@
       </div>
     </section>
 
+    <!-- FOOTER -->
+    <footer>
+      <span class="footer-heart">♡</span>
+      <p class="footer-text">Made with love by <em>Kishan</em></p>
+      <p class="footer-sub">For Aditi · 11 March 2026</p>
+    </footer>
+
     <script>
       /* ══ DEVTOOLS DETERRENTS ══ */
-      // Disable right-click
       document.addEventListener('contextmenu', e => e.preventDefault());
-      // Block common DevTools shortcuts
       document.addEventListener('keydown', e => {
         if (
           e.key === 'F12' ||
           (e.ctrlKey && e.shiftKey && ['I','J','C','U'].includes(e.key.toUpperCase())) ||
           (e.ctrlKey && e.key.toUpperCase() === 'U') ||
-          (e.metaKey && e.altKey && e.key.toUpperCase() === 'I') ||
-          (e.metaKey && e.altKey && e.key.toUpperCase() === 'J') ||
+          (e.metaKey && e.altKey && ['I','J'].includes(e.key.toUpperCase())) ||
           (e.metaKey && e.key.toUpperCase() === 'U')
         ) { e.preventDefault(); return false; }
       });
-      // Note: window size-based DevTools detection removed — too unreliable on mobile
-      // (mobile keyboards resize the viewport and cause false positives)
+
+      /* ══ BIRTHDAY TIMER LOCK ══ */
+      const UNLOCK_DATE = new Date('2026-03-11T00:00:00');
+      // Set to your local midnight — adjust timezone if needed
+      // To test: change UNLOCK_DATE to a past date
+
+      const timerLock = document.getElementById('timerLock');
+      const cdDays = document.getElementById('cdDays');
+      const cdHours = document.getElementById('cdHours');
+      const cdMins = document.getElementById('cdMins');
+      const cdSecs = document.getElementById('cdSecs');
+      const timerReady = document.getElementById('timerReady');
+
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      function flipNumber(el, newVal) {
+        const current = el.textContent;
+        if (current === newVal) return;
+        el.style.transform = 'translateY(-6px)';
+        el.style.opacity = '0.4';
+        el.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+        setTimeout(() => {
+          el.textContent = newVal;
+          el.style.transform = 'translateY(4px)';
+          setTimeout(() => {
+            el.style.transform = 'none';
+            el.style.opacity = '1';
+          }, 50);
+        }, 200);
+      }
+
+      function updateCountdown() {
+        const now = new Date();
+        const diff = UNLOCK_DATE - now;
+
+        if (diff <= 0) {
+          // Time's up — unlock!
+          cdDays.textContent = '00'; cdHours.textContent = '00';
+          cdMins.textContent = '00'; cdSecs.textContent = '00';
+          document.getElementById('countdown').style.opacity = '0.2';
+          timerReady.classList.add('show');
+          setTimeout(() => {
+            timerLock.classList.add('unlocking');
+            setTimeout(() => timerLock.classList.add('hidden'), 1300);
+          }, 2000);
+          return;
+        }
+
+        const days  = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins  = Math.floor((diff % 3600000)  / 60000);
+        const secs  = Math.floor((diff % 60000)    / 1000);
+
+        flipNumber(cdDays, pad(days));
+        flipNumber(cdHours, pad(hours));
+        flipNumber(cdMins, pad(mins));
+        flipNumber(cdSecs, pad(secs));
+      }
+
+      // Check if already past the date
+      if (new Date() >= UNLOCK_DATE) {
+        timerLock.classList.add('hidden');
+      } else {
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        // Floating particles
+        const pContainer = document.getElementById('timerParticles');
+        for (let i = 0; i < 12; i++) {
+          const p = document.createElement('div');
+          p.className = 'tp';
+          const size = Math.random() * 120 + 40;
+          p.style.cssText = `
+            width:${size}px; height:${size}px;
+            left:${Math.random()*100}%;
+            animation-duration:${Math.random()*20+15}s;
+            animation-delay:${Math.random()*-20}s;
+          `;
+          pContainer.appendChild(p);
+        }
+      }
 
       /* ══ MUSIC ══ */
       const audio = document.getElementById('bgMusic');
@@ -536,19 +739,16 @@
       const canvas = document.getElementById('confetti-canvas');
       const ctx = canvas.getContext('2d');
       function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas(); window.addEventListener('resize', resizeCanvas);
       const COLORS = ['#c9a96e','#f0e9dc','#e8c99a','#a0855a','#1a1714','#f7f4ef','#d4b483'];
       const pieces = [];
       class Piece {
         reset(fromTop) {
-          this.x = Math.random() * canvas.width;
-          this.y = fromTop ? Math.random() * -300 : Math.random() * canvas.height;
+          this.x = Math.random() * canvas.width; this.y = fromTop ? Math.random() * -300 : Math.random() * canvas.height;
           this.w = Math.random() * 11 + 4; this.h = Math.random() * 5 + 2;
           this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
           this.speed = Math.random() * 3 + 1.5; this.angle = Math.random() * Math.PI * 2;
-          this.spin = (Math.random() - 0.5) * 0.14; this.drift = (Math.random() - 0.5) * 1.2;
-          this.life = 1;
+          this.spin = (Math.random() - 0.5) * 0.14; this.drift = (Math.random() - 0.5) * 1.2; this.life = 1;
         }
         constructor() { this.reset(true); }
         update(fade) { this.y += this.speed; this.x += this.drift; this.angle += this.spin; if (fade) this.life -= 0.008; if (this.y > canvas.height + 20 || this.life <= 0) this.reset(true); }
@@ -572,6 +772,21 @@
       document.addEventListener('mousedown', () => cursor.style.transform = 'scale(2.5)');
       document.addEventListener('mouseup', () => cursor.style.transform = 'scale(1)');
 
+      /* ══ SMOOTH SECTION TRANSITIONS ══ */
+      // Parallax-lite on hero background
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const hero = document.getElementById('home');
+        if (hero) {
+          hero.style.backgroundPositionY = scrolled * 0.3 + 'px';
+        }
+        // Nav opacity shift
+        const nav = document.querySelector('nav');
+        nav.style.backdropFilter = scrolled > 60 ? 'blur(12px)' : 'none';
+        nav.style.background = scrolled > 60 ? 'rgba(247,244,239,0.7)' : 'transparent';
+        nav.style.transition = 'background 0.4s ease, backdrop-filter 0.4s ease';
+      });
+
       /* ══ SCROLL REVEAL ══ */
       const obs = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
@@ -579,14 +794,11 @@
       document.querySelectorAll('[data-reveal]').forEach(el => obs.observe(el));
 
       /* ══ VIDEO GATE ══ */
-      // Password stored as XOR-encoded array — not readable as plain text in source
-      // Key: 42 | Encoded: "01/01/2026"
       const _k = 42;
       const _e = [26,27,5,26,27,5,24,26,24,28];
       const _v = () => _e.map(c => String.fromCharCode(c ^ _k)).join('');
 
-      let videoUnlocked = false;
-      let attempts = 0;
+      let videoUnlocked = false, attempts = 0;
       const MAX_ATTEMPTS = 5;
       let locked = false;
 
@@ -598,7 +810,6 @@
       const videoSection = document.getElementById('videoSection');
       const unlockedBadge = document.getElementById('unlockedBadge');
 
-      // Auto-format input as DD/MM/YYYY
       gateInput.addEventListener('input', () => {
         let val = gateInput.value.replace(/\D/g, '');
         if (val.length > 2) val = val.slice(0,2) + '/' + val.slice(2);
@@ -610,12 +821,9 @@
         if (locked) return;
         const input = gateInput.value.trim();
         if (input === _v()) {
-          // ✅ Correct
           videoUnlocked = true;
-          gateInput.classList.remove('wrong');
-          gateInput.classList.add('correct');
-          videoGate.style.transition = 'opacity 0.6s ease';
-          videoGate.style.opacity = '0';
+          gateInput.classList.remove('wrong'); gateInput.classList.add('correct');
+          videoGate.style.transition = 'opacity 0.6s ease'; videoGate.style.opacity = '0';
           setTimeout(() => {
             videoGate.classList.remove('show');
             videoSection.style.display = 'block';
@@ -623,32 +831,23 @@
             unlockedBadge.classList.add('show');
             const frame = document.getElementById('privateVideoFrame');
             if (frame) frame.src = frame.getAttribute('data-src');
-            setTimeout(() => {
-              document.querySelectorAll('.video-item').forEach(v => v.classList.add('visible'));
-            }, 100);
+            setTimeout(() => document.querySelectorAll('.video-item').forEach(v => v.classList.add('visible')), 100);
           }, 600);
         } else {
-          // ❌ Wrong
           attempts++;
           gateInput.classList.add('wrong');
           setTimeout(() => gateInput.classList.remove('wrong'), 500);
           gateError.classList.add('show');
           const left = MAX_ATTEMPTS - attempts;
-          if (left > 0) {
-            gateAttempts.textContent = left + (left === 1 ? ' attempt left' : ' attempts left');
-          }
+          if (left > 0) gateAttempts.textContent = left + (left === 1 ? ' attempt left' : ' attempts left');
           if (attempts >= MAX_ATTEMPTS) {
-            locked = true;
-            gateInput.disabled = true;
-            gateSubmit.disabled = true;
+            locked = true; gateInput.disabled = true; gateSubmit.disabled = true;
             gateError.textContent = "Too many attempts. Come back later ♡";
             gateAttempts.textContent = '';
-            // Re-enable after 60s
             setTimeout(() => {
               locked = false; attempts = 0;
               gateInput.disabled = false; gateSubmit.disabled = false;
-              gateInput.value = '';
-              gateError.classList.remove('show');
+              gateInput.value = ''; gateError.classList.remove('show');
               gateError.textContent = "Hmm, that's not right. Try again ♡";
               gateAttempts.textContent = '';
             }, 60000);
@@ -669,17 +868,14 @@
           if (isVideos) {
             document.getElementById('photoGrid').classList.remove('active');
             if (videoUnlocked) {
-              videoGate.classList.remove('show');
-              videoSection.style.display = 'block';
+              videoGate.classList.remove('show'); videoSection.style.display = 'block';
               document.getElementById('videoGrid').classList.add('active');
             } else {
-              videoGate.classList.add('show');
-              videoSection.style.display = 'none';
+              videoGate.classList.add('show'); videoSection.style.display = 'none';
               setTimeout(() => gateInput.focus(), 300);
             }
           } else {
-            videoGate.classList.remove('show');
-            videoSection.style.display = 'none';
+            videoGate.classList.remove('show'); videoSection.style.display = 'none';
             document.getElementById('videoGrid').classList.remove('active');
             document.getElementById('photoGrid').classList.add('active');
           }
